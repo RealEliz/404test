@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: gg sans, 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #313338;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            line-height: 1.4;
+        }
+
+        .chat-container {
+            background: #313338;
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: #2b2d31;
+            padding: 16px;
+            border-bottom: 1px solid #1e1f22;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .server-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 16px;
+            padding: 2px 0;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #5865f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .username {
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .timestamp {
+            color: #949ba4;
+            font-size: 0.75rem;
+        }
+
+        .message-text {
+            color: #dbdee1;
+        }
+
+        .badge {
+            padding: 0 4px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .admin-badge {
+            background: #5865f2;
+        }
+
+        .premium-badge {
+            background: #ed4245;
+        }
+
+        .verified-badge {
+            background: #3ba55c;
+        }
+
+        .profile-modal {
+            display: none;
+            position: fixed;
+            background: #232428;
+            border-radius: 8px;
+            width: 340px;
+            box-shadow: 0 8px 16px rgba(0,0,0,.24);
+            z-index: 100;
+            animation: scaleIn 0.2s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .profile-banner {
+            height: 60px;
+            background: #5865f2;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #232428;
+            border: 6px solid #232428;
+            position: absolute;
+            bottom: -20px;
+            left: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .profile-info {
+            padding: 60px 16px 16px;
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .profile-badges {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+
+        .profile-divider {
+            height: 1px;
+            background: #393c41;
+            margin: 12px 0;
+        }
+
+        .profile-section {
+            margin-bottom: 16px;
+        }
+
+        .profile-section-title {
+            color: #b5bac1;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .profile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .reaction {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #2b2d31;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .reaction.reacted {
+            background: #3c45a5;
+        }
+
+        .system-message {
+            color: #949ba4;
+            font-style: italic;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .chat-footer {
+            background: #2b2d31;
+            padding: 16px;
+            border-top: 1px solid #1e1f22;
+            display: flex;
+            justify-content: center;
+        }
+
+        .home-button {
+            background: #5865f2;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .home-button:hover {
+            background: #4752c4;
+        }
+        
+
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="server-name"># general</div>
+        </div>
+        
+        <div class="chat-messages">
+            <!-- Wumpus starts exploring -->
+            <div class="message">
+                <div class="avatar wumpus-avatar" onclick="showProfile('wumpus')">W</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username wumpus" onclick="showProfile('wumpus')">Wumpus</span>
+                        <span class="timestamp">Today at 4:04 PM</span>
+                    </div>
+                    <div class="message-text">So... we're page exploring now, guys?</div>
+                </div>
+            </div>
+
+            <!-- Neo's responses -->
+            <div class="message">
+                <div class="avatar neo-avatar" onclick="showProfile('neo')">N</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username neo" onclick="showProfile('neo')">Neo</span>
+                        <span class="timestamp">Today at 4:04 PM</span>
+                    </div>
+                    <div class="message-text">I guess so..</div>
+                </div>
+            </div>
+
+            <div class="message">
+                <div class="avatar neo-avatar" onclick="showProfile('neo')">N</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username neo" onclick="showProfile('neo')">Neo</span>
+                        <span class="timestamp">Today at 4:05 PM</span>
+                    </div>
+                    <div class="message-text">Let's try this... Link</div>
+                </div>
+            </div>
+
+            <!-- Server Response -->
+            <div class="message">
+                <div class="avatar server-avatar" onclick="showProfile('server')">S</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username server" onclick="showProfile('server')">Server</span>
+                        <span class="badge verified-badge">OFFICIAL</span>
+                        <span class="timestamp">Today at 4:05 PM</span>
+                    </div>
+                    <div class="message-text">Sorry, this page is unavailable.</div>
+                </div>
+            </div>
+
+            <!-- Continue chat... -->
+            <div class="message">
+                <div class="avatar wumpus-avatar" onclick="showProfile('wumpus')">W</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username wumpus" onclick="showProfile('wumpus')">Wumpus</span>
+                        <span class="timestamp">Today at 4:06 PM</span>
+                    </div>
+                    <div class="message-text">Damn, lemme try... Link</div>
+                </div>
+            </div>
+
+            <!-- Cats Suggestion -->
+            <div class="message">
+                <div class="avatar cats-avatar" onclick="showProfile('cats')">C</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username cats" onclick="showProfile('cats')">Cats</span>
+                        <span class="badge premium-badge">PREMIUM</span>
+                        <span class="timestamp">Today at 4:06 PM</span>
+                    </div>
+                    <div class="message-text">Maybe go onto their home page and browse through all of the links there.</div>
+                </div>
+            </div>
+
+            <!-- Mason's Response -->
+            <div class="message">
+                <div class="avatar mason-avatar" onclick="showProfile('mason')">M</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username mason" onclick="showProfile('mason')">Mason</span>
+                        <span class="timestamp">Today at 4:07 PM</span>
+                    </div>
+                    <div class="message-text">But that's no fun!</div>
+                    <div class="reaction reacted">
+                        <span>❤️</span>
+                        <span>1</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eliz's Response -->
+            <div class="message">
+                <div class="avatar eliz-avatar" onclick="showProfile('eliz')">E</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username eliz" onclick="showProfile('eliz')">Eliz</span>
+                        <span class="badge admin-badge">ADMIN</span>
+                        <span class="timestamp">Today at 4:07 PM</span>
+                    </div>
+                    <div class="message-text">I agree with Cats, go to the home page, and go through our pages there.</div>
+                </div>
+            </div>
+
+            <!-- More Wumpus -->
+            <div class="message">
+                <div class="avatar wumpus-avatar" onclick="showProfile('wumpus')">W</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username wumpus" onclick="showProfile('wumpus')">Wumpus</span>
+                        <span class="timestamp">Today at 4:08 PM</span>
+                    </div>
+                    <div class="message-text">Just watch.. lemme try this one... Link</div>
+                </div>
+            </div>
+
+            <!-- Server Response -->
+            <div class="message">
+                <div class="avatar server-avatar" onclick="showProfile('server')">S</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username server" onclick="showProfile('server')">Server</span>
+                        <span class="badge verified-badge">OFFICIAL</span>
+                        <span class="timestamp">Today at 4:08 PM</span>
+                    </div>
+                    <div class="message-text">Sorry, this page is unavailable.</div>
+                </div>
+            </div>
+
+            <!-- Final Messages -->
+            <div class="message">
+                <div class="avatar kaylin-avatar" onclick="showProfile('kaylin')">K</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username kaylin" onclick="showProfile('kaylin')">Kaylin</span>
+                        <span class="timestamp">Today at 4:09 PM</span>
+                    </div>
+                    <div class="message-text">ngl, you kinda suck at this.</div>
+                </div>
+            </div>
+
+            <!-- System Messages -->
+            <div class="system-message">@Wumpus has left the group.</div>
+            <div class="system-message">@Wumpus has been added back to the group by @Eliz</div>
+
+            <!-- Final Exchange -->
+            <div class="message">
+                <div class="avatar eliz-avatar" onclick="showProfile('eliz')">E</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username eliz" onclick="showProfile('eliz')">Eliz</span>
+                        <span class="badge admin-badge">ADMIN</span>
+                        <span class="timestamp">Today at 4:10 PM</span>
+                    </div>
+                    <div class="message-text">Not so fast, Wumpus.</div>
+                </div>
+            </div>
+
+            <div class="message">
+                <div class="avatar wumpus-avatar" onclick="showProfile('wumpus')">W</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username wumpus" onclick="showProfile('wumpus')">Wumpus</span>
+                        <span class="timestamp">Today at 4:10 PM</span>
+                    </div>
+                    <div class="message-text">Dude. Let me leave.</div>
+                </div>
+            </div>
+
+            <div class="message">
+                <div class="avatar eliz-avatar" onclick="showProfile('eliz')">E</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username eliz" onclick="showProfile('eliz')">Eliz</span>
+                        <span class="badge admin-badge">ADMIN</span>
+                        <span class="timestamp">Today at 4:11 PM</span>
+                    </div>
+                    <div class="message-text">Fine, just go back home.</div>
+                </div>
+            </div>
+
+            <div class="system-message">@Wumpus has left the group.</div>
+        </div>
+
+        <div class="chat-footer">
+            <a href="index.html" class="home-button">
+                <i class="fas fa-home"></i>
+                Go Home
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function showProfile(userId) {
+            // Hide all profiles first
+            hideAllProfiles();
+
+            // Show the selected profile
+            const profile = document.getElementById(`${userId}-profile`);
+            const overlay = document.querySelector('.profile-overlay');
+            
+            if (profile) {
+                profile.style.display = 'block';
+                overlay.style.display = 'block';
+                
+                // Position the profile next to the clicked element
+                const clickedElement = event.target;
+                const rect = clickedElement.getBoundingClientRect();
+                
+                profile.style.top = `${rect.top}px`;
+                profile.style.left = `${rect.right + 10}px`;
+            }
+        }
+
+        function hideAllProfiles() {
+            const profiles = document.querySelectorAll('.profile-modal');
+            const overlay = document.querySelector('.profile-overlay');
+            
+            profiles.forEach(profile => profile.style.display = 'none');
+            overlay.style.display = 'none';
+        }
+    </script>
+
+    </script>
+</body>
+</html>
